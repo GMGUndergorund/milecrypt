@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: milecrypt
+    env: python
+    buildCommand: pip install -r requirements_deploy.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --reuse-port --reload main:app
+    envVars:
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: RECAPTCHA_SITE_KEY
+        value: "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+      - key: RECAPTCHA_SECRET_KEY
+        value: "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+    scaling:
+      minInstances: 1
+      maxInstances: 3

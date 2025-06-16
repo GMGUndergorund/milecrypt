@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Create Link Set - MileCrypt{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="card-title mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Create Protected Link Set
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-4">
+                        {{ form.folder_name.label(class="form-label fw-semibold") }}
+                        {{ form.folder_name(class="form-control form-control-lg") }}
+                        {% if form.folder_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.folder_name.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            This will be used to generate your unique link URL
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.links.label(class="form-label fw-semibold") }}
+                        {{ form.links(class="form-control") }}
+                        {% if form.links.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.links.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Enter one download URL per line. All URLs will be validated.
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            {{ form.password.label(class="form-label fw-semibold") }}
+                            {{ form.password(class="form-control") }}
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="bi bi-lock me-1"></i>
+                                Optional additional password protection
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.expiry_hours.label(class="form-label fw-semibold") }}
+                            {{ form.expiry_hours(class="form-control") }}
+                            {% if form.expiry_hours.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.expiry_hours.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="bi bi-clock me-1"></i>
+                                Links will expire after this many hours
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="card mt-4 border-info">
+            <div class="card-header bg-info bg-opacity-10">
+                <h6 class="card-title mb-0 text-info">
+                    <i class="bi bi-lightbulb me-2"></i>Tips for Better Security
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0 small">
+                    <li>Use descriptive folder names to make sharing easier</li>
+                    <li>Set an expiry time for sensitive content</li>
+                    <li>Add password protection for extra security</li>
+                    <li>Only share URLs from trusted file hosting services</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-resize textarea
+document.querySelector('textarea[name="links"]').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+});
+
+// URL validation helper
+document.querySelector('textarea[name="links"]').addEventListener('blur', function() {
+    const lines = this.value.split('\n').filter(line => line.trim());
+    const urlPattern = /^https?:\/\/.+/i;
+    const invalidLines = lines.filter(line => !urlPattern.test(line.trim()));
+    
+    if (invalidLines.length > 0) {
+        this.classList.add('is-invalid');
+    } else {
+        this.classList.remove('is-invalid');
+    }
+});
+</script>
+{% endblock %}

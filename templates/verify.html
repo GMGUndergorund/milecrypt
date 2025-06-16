@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Access - {{ linkset.folder_name }} - MileCrypt{% endblock %}
+
+{% block head %}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark text-center">
+                <h4 class="card-title mb-0">
+                    <i class="bi bi-shield-exclamation me-2"></i>Verification Required
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-4 d-inline-block mb-3">
+                        <i class="bi bi-folder-lock text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5>{{ linkset.folder_name }}</h5>
+                    <p class="text-muted">This link set is protected. Please complete verification to access the download links.</p>
+                </div>
+
+                <div class="row mb-4 text-center">
+                    <div class="col-6">
+                        <div class="bg-light rounded p-3">
+                            <i class="bi bi-files text-primary fs-5"></i>
+                            <div class="mt-2">
+                                <strong>{{ linkset.links|length }}</strong>
+                                <small class="d-block text-muted">Files Available</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-light rounded p-3">
+                            <i class="bi bi-eye text-info fs-5"></i>
+                            <div class="mt-2">
+                                <strong>{{ linkset.views }}</strong>
+                                <small class="d-block text-muted">Total Views</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('verify_captcha', slug=linkset.slug) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    {% if linkset.password %}
+                    <div class="mb-4">
+                        {{ form.password.label(class="form-label fw-semibold") }}
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            {{ form.password(class="form-control") }}
+                        </div>
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            This link set requires a password to access
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-4 text-center">
+                        <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-shield-check me-2"></i>Verify & Access Links
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="card mt-4 border-info">
+            <div class="card-header bg-info bg-opacity-10">
+                <h6 class="card-title mb-0 text-info">
+                    <i class="bi bi-info-circle me-2"></i>Why Verification?
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0 small">
+                    <li>CAPTCHA helps prevent automated bots from accessing links</li>
+                    <li>Protects the shared content from abuse</li>
+                    <li>Ensures only legitimate users can access downloads</li>
+                    <li>Helps maintain server performance and security</li>
+                </ul>
+            </div>
+        </div>
+
+        {% if linkset.expires_at %}
+        <div class="alert alert-warning mt-3">
+            <i class="bi bi-clock me-2"></i>
+            <strong>Expires:</strong> {{ linkset.expires_at[:19].replace('T', ' ') }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Handle form submission with reCAPTCHA validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const recaptchaResponse = grecaptcha.getResponse();
+    if (!recaptchaResponse) {
+        e.preventDefault();
+        alert('Please complete the CAPTCHA verification.');
+        return false;
+    }
+});
+
+// Auto-focus password field if present
+{% if linkset.password %}
+document.querySelector('input[name="password"]').focus();
+{% endif %}
+</script>
+{% endblock %}

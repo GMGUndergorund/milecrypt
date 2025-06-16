@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-primary mb-3">
+                <i class="bi bi-shield-lock me-3"></i>MileCrypt
+            </h1>
+            <p class="lead text-muted mb-4">
+                Secure your download links with CAPTCHA protection. No registration required.
+            </p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{{ url_for('create_linkset') }}" class="btn btn-primary btn-lg px-4">
+                    <i class="bi bi-plus-circle me-2"></i>Create Protected Links
+                </a>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                            <i class="bi bi-shield-check text-primary fs-3"></i>
+                        </div>
+                        <h5 class="card-title">CAPTCHA Protected</h5>
+                        <p class="card-text text-muted">
+                            All links are protected with Google reCAPTCHA to prevent automated access.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                            <i class="bi bi-folder-plus text-primary fs-3"></i>
+                        </div>
+                        <h5 class="card-title">Organized Sets</h5>
+                        <p class="card-text text-muted">
+                            Group multiple download links under custom folder names for better organization.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                            <i class="bi bi-clock text-primary fs-3"></i>
+                        </div>
+                        <h5 class="card-title">Auto Expiry</h5>
+                        <p class="card-text text-muted">
+                            Set automatic expiration times for your link sets for enhanced security.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Linksets -->
+        {% if recent_linksets %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history me-2"></i>Recent Public Link Sets
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for linkset in recent_linksets %}
+                    <div class="col-md-6">
+                        <div class="card border-start border-primary border-3">
+                            <div class="card-body py-3">
+                                <h6 class="card-title mb-2">
+                                    <i class="bi bi-folder me-1"></i>{{ linkset.folder_name }}
+                                </h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-files me-1"></i>{{ linkset.link_count }} files
+                                        <span class="mx-2">•</span>
+                                        <i class="bi bi-eye me-1"></i>{{ linkset.views }} views
+                                    </small>
+                                    <a href="{{ url_for('verify_linkset', slug=linkset.slug) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-arrow-right me-1"></i>Access
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- How it Works -->
+        <div class="mt-5">
+            <h3 class="text-center mb-4">How It Works</h3>
+            <div class="row g-4">
+                <div class="col-md-3 text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                        <span class="badge bg-primary fs-6">1</span>
+                    </div>
+                    <h6>Create</h6>
+                    <p class="text-muted small">Add your folder name and download links</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                        <span class="badge bg-primary fs-6">2</span>
+                    </div>
+                    <h6>Share</h6>
+                    <p class="text-muted small">Get a unique protected link to share</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                        <span class="badge bg-primary fs-6">3</span>
+                    </div>
+                    <h6>Verify</h6>
+                    <p class="text-muted small">Users complete CAPTCHA to verify</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                        <span class="badge bg-primary fs-6">4</span>
+                    </div>
+                    <h6>Download</h6>
+                    <p class="text-muted small">Access the protected download links</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

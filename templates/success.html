@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Success - MileCrypt{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow border-success">
+            <div class="card-header bg-success text-white text-center">
+                <h4 class="card-title mb-0">
+                    <i class="bi bi-check-circle me-2"></i>Link Set Created Successfully!
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="bg-success bg-opacity-10 rounded-circle p-4 d-inline-block mb-3">
+                        <i class="bi bi-shield-check text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="text-success">{{ linkset.folder_name }}</h5>
+                    <p class="text-muted">Your protected link set is ready to share</p>
+                </div>
+
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <label class="form-label fw-semibold">Your Protected Link:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control-lg font-monospace" 
+                                   value="{{ request.url_root }}fc/{{ linkset.slug }}" 
+                                   id="protectedLink" readonly>
+                            <button class="btn btn-outline-primary" type="button" onclick="copyLink()" id="copyButton">
+                                <i class="bi bi-clipboard" id="copyIcon"></i>
+                                <span id="copyText">Copy Link</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="bg-primary bg-opacity-10 rounded p-3">
+                                <i class="bi bi-files text-primary fs-4"></i>
+                                <div class="mt-2">
+                                    <strong>{{ linkset.links|length }}</strong>
+                                    <small class="d-block text-muted">Files</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="bg-info bg-opacity-10 rounded p-3">
+                                <i class="bi bi-shield-lock text-info fs-4"></i>
+                                <div class="mt-2">
+                                    <strong>{{ 'Yes' if linkset.password else 'No' }}</strong>
+                                    <small class="d-block text-muted">Password</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="bg-warning bg-opacity-10 rounded p-3">
+                                <i class="bi bi-clock text-warning fs-4"></i>
+                                <div class="mt-2">
+                                    <strong>{{ linkset.expires_at[:10] if linkset.expires_at else 'Never' }}</strong>
+                                    <small class="d-block text-muted">Expires</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('verify_linkset', slug=linkset.slug) }}" 
+                       class="btn btn-primary">
+                        <i class="bi bi-eye me-2"></i>Test Your Link
+                    </a>
+                    <a href="{{ url_for('create_linkset') }}" 
+                       class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Create Another
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Share Instructions -->
+        <div class="card mt-4 border-info">
+            <div class="card-header bg-info bg-opacity-10">
+                <h6 class="card-title mb-0 text-info">
+                    <i class="bi bi-share me-2"></i>How to Share Your Protected Link
+                </h6>
+            </div>
+            <div class="card-body">
+                <ol class="mb-0 small">
+                    <li>Copy the protected link above</li>
+                    <li>Share it via email, messaging, or social media</li>
+                    <li>Users will need to complete CAPTCHA verification</li>
+                    {% if linkset.password %}
+                    <li>They will also need the password you set</li>
+                    {% endif %}
+                    <li>After verification, they can access all download links</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyLink() {
+    const linkInput = document.getElementById('protectedLink');
+    const copyIcon = document.getElementById('copyIcon');
+    const copyText = document.getElementById('copyText');
+    const copyButton = document.getElementById('copyButton');
+    
+    // Modern clipboard API with fallback
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(linkInput.value).then(() => {
+            showCopySuccess();
+        }).catch(() => {
+            fallbackCopy();
+        });
+    } else {
+        fallbackCopy();
+    }
+    
+    function fallbackCopy() {
+        linkInput.select();
+        linkInput.setSelectionRange(0, 99999); // For mobile devices
+        try {
+            document.execCommand('copy');
+            showCopySuccess();
+        } catch (err) {
+            showCopyError();
+        }
+    }
+    
+    function showCopySuccess() {
+        // Update button to show success with animation
+        copyIcon.className = 'bi bi-check-circle';
+        copyText.textContent = 'Link Copied!';
+        copyButton.className = 'btn btn-success';
+        
+        // Show toast notification
+        showToast('Protected link copied to clipboard!', 'success');
+        
+        // Reset button after 3 seconds
+        setTimeout(() => {
+            copyIcon.className = 'bi bi-clipboard';
+            copyText.textContent = 'Copy Link';
+            copyButton.className = 'btn btn-outline-primary';
+        }, 3000);
+    }
+    
+    function showCopyError() {
+        copyIcon.className = 'bi bi-exclamation-triangle';
+        copyText.textContent = 'Copy Failed';
+        copyButton.className = 'btn btn-danger';
+        
+        setTimeout(() => {
+            copyIcon.className = 'bi bi-clipboard';
+            copyText.textContent = 'Copy Link';
+            copyButton.className = 'btn btn-outline-primary';
+        }, 3000);
+    }
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0 position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 1050;';
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-check-circle me-2"></i>${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    const bootstrapToast = new bootstrap.Toast(toast);
+    bootstrapToast.show();
+    
+    toast.addEventListener('hidden.bs.toast', function() {
+        document.body.removeChild(toast);
+    });
+}
+</script>
+{% endblock %}
